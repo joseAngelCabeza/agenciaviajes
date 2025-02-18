@@ -1,7 +1,6 @@
-import {Viaje} from "../models/viaje.js";
+import {Viaje} from "../models/Viaje.js";
 import moment from 'moment';
-import {Testimonial} from "../models/testimoniales.js";
-import { Reserva } from '../models/reserva.js';
+import {Testimonial} from "../models/Testimoniales.js";
 
 
 const paginaInicio = async (req, res) => {
@@ -33,7 +32,7 @@ const paginaInicio = async (req, res) => {
     }
 
 
-};
+}
 
 const paginaNosotros = (req, res) => {
     const titulo = 'Nosotros';
@@ -79,83 +78,121 @@ const paginaDetalleViajes = async (req, res) => {
         console.log(err);
     }
 };
-
-const paginaReservaViajes = async (req, res) => {
-    try {
-        // Obtener el ID del viaje desde la URL
-        const { viaje_id } = req.query;
-
-
-        // Buscar el viaje en la base de datos
-        const viaje = await Viaje.findByPk(viaje_id, {
-            attributes: ['id', 'titulo', 'precio'], // Solo obtenemos estos campos
-        });
-
-
-        // Renderizar la vista de reservas con la información del viaje
-        res.render("reservas", {
-            titulo: "Reserva tu Viaje",
-            viaje, // Pasamos el viaje a la vista
-        });
-
-    } catch (err) {
-        console.log("Error al cargar la página de reservas:", err);
-        res.status(500).send("Error interno del servidor");
+/*
+//Muestra una página por su Detalle
+const paginaComprar = async (req, res) => {
+    // req.params te va a dar los :slug que ponemos al pasarlo del router
+    const {slug} = req.params;
+    try{
+        //Me traigo una sola columna y lo hago con un where donde coincida el slug
+        const resultado = await Viaje.findOne({where: {slug: slug}});
+        res.render('comprar', {
+            pagina: 'Comprar un Viaje',
+            resultado: resultado,
+            moment: moment,
+        })
+    }catch (error){
+        console.log(error);
     }
-};
 
+}
 
-const guardarReservas = async (req, res) => {
-    const { nombre, email, fecha, viaje_id } = req.body;
+const guardarCompra =  async (req, res) => {
+
+    const {nombre, apellidos, correo, telefono, slug} = req.body;
 
     const errores = [];
 
-    // Validamos solo los campos necesarios
-    if (!nombre.trim()) errores.push({ mensaje: "El nombre está vacío" });
-    if (!email.trim()) errores.push({ mensaje: "El email está vacío" });
-    if (!fecha.trim()) errores.push({ mensaje: "La fecha está vacía" });
-
-    if (errores.length > 0) {
-        // Si hay errores, obtenemos el viaje y renderizamos la vista de nuevo con los errores
-        const viaje = await Viaje.findByPk(viaje_id);
-        return res.render("reservas", {
-            titulo: "Reserva tu Viaje",
-            errores,
-            nombre,
-            email,
-            fecha,
-            viaje,
-        });
+    if (nombre.trim() === '') {
+        errores.push({mensaje: 'El nombre está vacío'});
+    }
+    if (correo.trim() === '') {
+        errores.push({mensaje: 'El correo está vacío'});
+    }
+    if (telefono.trim() === '') {
+        errores.push({mensaje: 'El teléfono está vacío'});
+    }
+    if (apellidos.trim() === '') {
+        errores.push({mensaje: 'Los apellidos están vacío'});
     }
 
-    try {
-        // Buscamos el viaje sin hacer validación de viaje_id
-        const viaje = await Viaje.findByPk(viaje_id);
 
-        // Si no se encuentra el viaje, redirigimos sin error
-        if (!viaje) {
-            return res.redirect("/reservas"); // Redirigimos a la página de reservas sin mostrar error
+
+
+    const resultado2 = await Viaje.findOne({where: {slug: slug}});
+
+
+
+
+
+
+    if (errores.length > 0) { //Debemos volver a la vista y mostrar los errores
+
+
+        res.render('comprar', {
+            pagina: 'Comprar un viaje',
+            errores: errores,
+            nombre: nombre,
+            correo: correo,
+            apellidos: apellidos,
+            telefono: telefono,
+            resultado: resultado2,
+        })
+    } else {//Almacenar el mensaje en la BBDD
+        // Crear un objeto de transporte de Nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',  // Usando Gmail como servicio de correo
+            auth: {
+                user: 'carlosronce@gmail.com', // Reemplaza con tu correo de Gmail
+                pass: 'bbsk jush eqad yptu'         // Reemplaza con tu contraseña o una contraseña de aplicación
+            }
+        });
+        try {
+            // Crear cliente en la base de datos
+            await Cliente.create({
+                nombre: nombre,
+                apellidos: apellidos,
+                correoelectronico: correo,
+                telefono: telefono,
+            });
+
+            // Configurar el mensaje de correo
+            const mailOptions = {
+                from: `carlosronce@gmail.com`,      // Remitente
+                to: 'croncero@yahoo.es',         // Destinatario
+                subject: `Compra realizada por ` + nombre,  // Asunto
+                text:
+                    'Nombre: ' + nombre + '\n' +
+                    'Apellidos: ' + apellidos + '\n' +
+                    'Correo: ' + correo + '\n' +
+                    'Teléfono: ' + telefono + '\n' +
+                    'Viaje: ' + resultado2.titulo + '\n' +
+                    'Precio: ' + resultado2.precio + ' euros\n' +
+                    'Fecha de ida: ' + resultado2.fecha_ida + '\n' +
+                    'Fecha de vuelta: ' + resultado2.fecha_vuelta + '\n' +
+                    'Disponibles: ' + resultado2.disponibles + '\n' +
+                    'Descripción: ' + resultado2.descripcion  // Contenido del correo
+            };
+
+
+            await transporter.sendMail(mailOptions);
+            //res.redirect('/comprar'); //Guardo en la base de datos y lo envío a la misma vista
+            res.render('enviarmail.pug', {
+                pagina: 'Comprar un viaje',
+                correcto: 'si',
+                nombre: nombre,
+                correo: correo,
+                apellidos: apellidos,
+                telefono: telefono,
+                resultado: resultado2,
+            })
+        } catch (error) {
+            console.log(error);
         }
-
-        // Creamos la reserva con los datos
-        await Reserva.create({
-            nombre,
-            email,
-            fecha,
-            viaje_id,
-            titulo: viaje.titulo,
-            precio: viaje.precio,
-        });
-
-        // Redirigimos a la página de reservas o confirmación
-        res.redirect("/reservas"); // O usa "/reservas/confirmacion" si lo prefieres
-    } catch (error) {
-        console.log(error);
-        res.status(500).send("Error al procesar la reserva");
     }
+
 };
-
-
+*/
 
 const guardarTestimonios = async (req, res) => {
     console.log(req.body);
@@ -206,6 +243,6 @@ export {
     paginaNosotros,
     paginaDetalleViajes,
     guardarTestimonios,
-    paginaReservaViajes,
-    guardarReservas,
+    /*guardarCompra,
+    paginaComprar,*/
 }
