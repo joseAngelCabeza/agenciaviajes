@@ -1,5 +1,14 @@
 import express, {json} from 'express';
-import { paginaInicio, paginaNosotros , paginaViajes , paginaTestimonios , paginaDetalleViajes , guardarTestimonios} from "../controllers/paginaController.js";
+import {
+    paginaInicio,
+    paginaNosotros,
+    paginaViajes,
+    paginaTestimonios,
+    paginaDetalleViajes,
+    guardarTestimonios,
+    paginaReservaViajes,
+    guardarReservas,
+} from "../controllers/paginaController.js";
 
 const router = express.Router();
 
@@ -8,6 +17,7 @@ router.get("/nosotros", paginaNosotros);
 router.get("/viajes", paginaViajes);
 router.get("/testimonios", paginaTestimonios);
 router.get("/viajes/:slug", paginaDetalleViajes);
+router.get("/reservas", paginaReservaViajes);
 
 router.get("/viajes/:slug", async (req, res) => {
     try {
@@ -27,6 +37,27 @@ router.get("/viajes/:slug", async (req, res) => {
     }
 });
 
+router.get("/reserva", async (req, res) => {
+    const { viaje_id } = req.query;
+
+    if (!viaje_id) {
+        return res.redirect("/");
+    }
+
+    try {
+        const viaje = await Viaje.findByPk(viaje_id);
+        if (!viaje) {
+            return res.redirect("/");
+        }
+
+        res.render("reserva", { viaje }); // Mando el viaje a la vista
+    } catch (error) {
+        console.error(error);
+        res.redirect("/");
+    }
+});
+
 router.post("/testimonios", guardarTestimonios);
+router.post("/reserva", guardarReservas);
 
 export default router;

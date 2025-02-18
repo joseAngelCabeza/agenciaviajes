@@ -3,8 +3,6 @@ import router from './routers/index.js';
 import db from './config/db.js';
 
 
-
-
 const app = express();
 
 const port = process.env.PORT || 4000;
@@ -35,3 +33,4 @@ app.use(express.urlencoded({extended: true}));
 app.use("/", router);
 
 // "dev": "nodemon index.js"
+//"start": "index.js"

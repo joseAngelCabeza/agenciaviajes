@@ -23,7 +23,7 @@ export const Viaje = db.define("viaje", {
     },
 
     descripcion: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
     },
 
     disponibles: {

@@ -1,0 +1,28 @@
+extends ./layout/index
+
+block contenido
+    main.container.mt-5
+        h1.text-center.mt-5 #{pagina}
+
+        .row
+            h2.d-block.w-100.text-center Haz tu Reserva
+
+            .row.justify-content-center.col
+                .col-md-8
+                    form(action="/reserva" method="POST")
+                        .form-group
+                            label(for="nombre") Nombre
+                            input#nombre(type="text", placeholder="Tu nombre", name="nombre", class="form-control", required)
+
+                        .form-group
+                            label(for="email") Email
+                            input#email(type="email", placeholder="Tu email", name="email", class="form-control", required)
+
+                        .form-group
+                            label(for="fecha") Fecha
+                            input#fecha(class="form-control", name="fecha", type="date", required)
+
+                        // Campo oculto para enviar el ID del viaje
+                        input(type="hidden", name="viaje_id", value=viaje ? viaje.id : "")
+
+                        input.btn.btn-success.btn-block(type="submit", value="Reservar")
