@@ -1,14 +1,28 @@
-Este proyecto es una plataforma web para una agencia de viajes, donde los usuarios pueden explorar diferentes destinos, 
-ver los detalles de cada viaje, y realizar reservas. El sistema está basado en Node.js con Express como framework backend, 
-Sequelize como ORM para interactuar con la base de datos, y Pug como motor de plantillas para renderizar las vistas.
+# Plataforma Web - Agencia de Viajes  
 
-La web tiene 4 secciones la principal , nosotros , viajes y testimonios.
-En la principal se puede ver un resumen de las otras secciones.
-En "Nosotros" se encuentra informacion sobre la agencia de viajes.
-En "Viajes" tenemos el listado de todos los viajes disponibles pudiendo 
-saber más de la informacion del viaje seleccionandolo.
-En "testimonios" podemos ver las opiniones de los clientes que han viajado.
+Este proyecto es una plataforma web para una agencia de viajes, donde los usuarios pueden explorar diferentes destinos, ver los detalles de cada viaje y hacer reservas.  
 
-La modificacion que he realizado consiste en implementar las reservas del viaje
-comenzando al estar en la vista de informacion de un viaje pulsando el
-boton de "reservar ahora" nos redirige a un formulario donde nos pide nuestros datos.
+El sistema está hecho con **Node.js**, usando **Express** como framework backend, **Sequelize** para manejar la base de datos y **Pug** como motor de plantillas para las vistas.  
+
+## 📌 Secciones de la web  
+
+La web tiene 4 secciones principales:  
+
+- **🏠 Principal**: Un resumen de las otras secciones.  
+- **📖 Nosotros**: Info sobre la agencia de viajes.  
+- **✈️ Viajes**: Lista de todos los viajes disponibles, con opción de ver más detalles de cada uno.  
+- **💬 Testimonios**: Opiniones de clientes que ya han viajado.  
+
+## ✍️ Implementación de reservas  
+
+La modificación que hice fue agregar la opción de hacer reservas.  
+
+Cuando estás en la vista de información de un viaje y le das al botón **"Reservar ahora"**, te lleva a un formulario donde te pide los siguientes datos:  
+
+- **📝 Nombre**  
+- **📧 Email**  
+- **📅 Fecha de la reserva**  
+
+También, a través de **Sequelize**, se obtiene automáticamente el **título del viaje** y el **precio** desde la base de datos.  
+
+Una vez llenado el formulario, la info se guarda en la tabla **reservas**, para que la agencia pueda revisarlas y gestionarlas.  
